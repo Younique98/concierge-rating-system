@@ -1,27 +1,138 @@
-## Challenge: Simple Review System
+# README: Point.me Review System
 
-We have set up a React template for a Concierge 5-Star Rating App tailored to point.me’s unique travel expertise. Your task is to enhance this app by implementing key functionality, ensuring that it captures the essence of [our specialized concierge offerings](https://www.point.me/concierge). As a bonus round, feel free to add your own design flair to the output.
+## **Overview**
 
-There are 2 parts to this challege.
+This repository contains a **scalable, maintainable, and performant** 5-Star
+Rating Review System for the Point.me Concierge service. The solution is
+architected following **best practices**, ensuring **modular design, optimized
+performance, and seamless extensibility.**
 
-### Part 1: Display existing reviews
+## **Tech Stack**
 
-Using the given API, display the list of saved user ratings. Ratings should be displayed with the number of stars, the name of the reviewer, and any additional textual review the author provided.
+- **Frontend:** React, Next.js, TailwindCSS
+- **State Management:** React Query
+- **API Integration:** Fetch API with caching
+- **Testing:** Jest, Cypress, Storybook
+- **Performance:** Skeleton loaders, lazy loading
+- **Build & Deployment:** Docker, GitHub Actions CI/CD
 
-### Part 2: Allow users to input new reviews
+## **Project Structure**
 
-Users can input a star rating (1-5): The user is shown 5 empty stars. They can click on any of the stars (1-5) that best reflect their experience. The user should see the appropriate stars fill in on hover; for example: if they hover over 3/5, they should see stars 1-3 filled in. Once the user clicks the star, the rating is set. 
-
-
-## Getting Started
-
-Install deps and run the development server:
-
-```bash
-npm run dev
+```
+src/
+ ├── components/
+ │   ├── ReviewCard.tsx        # Displays individual reviews
+ │   ├── StarRating.tsx        # Handles user rating input
+ │   ├── SkeletonReview.tsx    # Skeleton loader for fast UI loading
+ ├── hooks/
+ │   ├── useReviews.ts         # Handles API interactions with caching
+ ├── pages/
+ │   ├── index.tsx             # Main review page
+ ├── api/
+ │   ├── reviews.ts            # API endpoints abstraction
+ ├── tests/
+ │   ├── review.test.ts        # Unit tests for the Review feature
+ ├── .github/
+ │   ├── ISSUE_TEMPLATE.md     # GitHub Issue template
+ │   ├── PULL_REQUEST_TEMPLATE.md # PR Template
+ ├── docs/
+│   ├── API_CONTRACT.md
+│   ├── ARCHITECTURE.md
+│   ├── TESTING_STRATEGY.md
+│   ├── TODO.md
+│   ├── FUTURE_CONSIDERATIONS.md
+│   ├── SECURITY.md
+├── src/
 ```
 
-Access the app at [http://localhost:3000](http://localhost:3000).
+## **Installation & Setup**
 
-### Submit 😎
-Submit your code once it is complete and our team will review! May the odds be ever in your favor.
+1. Clone the repository:
+   ```sh
+   git clone git@github.com:Younique98/concierge-rating-system.git
+   cd pointme-reviews
+   ```
+2. Install dependencies:
+   ```sh
+   npm install
+   ```
+3. Start the development server:
+   ```sh
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) to view it in the
+   browser.
+
+## **Features & Implementation**
+
+### **1. Fetch & Display Reviews**
+
+- Uses React Query to **fetch and cache** reviews from the API.
+- Implements **pagination & sorting** for scalability.
+- Renders **Skeleton loaders** while fetching data.
+
+### **2. Submit New Reviews**
+
+- Implements **interactive star rating system** with hover effects.
+- **Optimistic UI updates**: Updates UI before API response for a seamless
+  experience.
+- **Validation:** Ensures valid inputs before submission.
+
+### **3. Performance Optimizations**
+
+- **Lazy loading reviews** to enhance performance.
+- **API caching** with React Query to reduce redundant calls.
+- **Minimal re-renders** by memoizing state updates.
+
+## **Testing Strategy**
+
+- **Unit Tests:** Jest + React Testing Library
+- **Integration Tests:** Cypress (E2E API + UI tests)
+- **Component Testing:** Storybook for isolated UI testing
+
+## **Future Considerations**
+
+**Scalability Enhancements:**
+
+- Implement **GraphQL or a dedicated microservice** for handling large-scale
+  review data.
+- Introduce **real-time WebSockets** for live review updates.
+
+  **AI & Personalization:**
+
+- **AI-powered review summaries** (e.g., summarizing review sentiment using NLP
+  models).
+- **Personalized recommendations** based on user review behavior.
+
+  **Security & Compliance:**
+
+- Implement **JWT authentication** for submitting reviews.
+- Secure API calls using **rate limiting & IP-based restrictions**.
+
+## **Contributing**
+
+1. **Fork** the repository & create a new branch.
+2. Follow the **Issue & PR Templates** for structured contributions.
+3. Ensure all code passes **linting & tests** before submission.
+4. Submit a pull request & request a review.
+
+## **Project Management**
+
+- **Milestones**:
+  [GitHub Milestones](https://github.com/Younique98/concierge-rating-system/milestones?with_issues=no)
+- **Issues**:
+  [GitHub Projects Board](https://github.com/users/Younique98/projects/9/views/1)
+- **Discussions & RFCs**: See [DISCUSSION.md](DISCUSSION.md) for architectural
+  notes and enhancements.
+
+## Documentation
+
+For detailed information, check out:
+
+- [API Contract](docs/API_CONTRACT.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Testing Strategy](docs/TESTING_STRATEGY.md)
+- [Future Considerations](docs/FUTURE_CONSIDERATIONS.md)
+- [High-level Discussions](docs/DISCUSSION.md)
+- [Security & Compliance](docs/SECURITY.md)
+- [TODO](docs/TODO.md)
