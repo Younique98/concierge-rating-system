@@ -1,49 +1,42 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import data from '@/data/reviewsData';
-import Review from '@/data/Review';
+import pool from '@/utils/db';
 
 const DEFAULT_PAGE_NUMBER = 1;
-const DEFAULT_PAGE_SIZE = 2;
-const MAX_PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 5;
 
-const setPageSize = (input: number | null | undefined) => {
-  if (!input) {
-    return DEFAULT_PAGE_SIZE;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  if (req.method !== 'GET') {
+    // TODO: (ET) Add better  error handling
+    return res.setHeader('Allow', ['GET']).status(405).json({
+      error: 'Method Not Allowed',
+      message: 'This endpoint only supports GET requests.',
+    });
   }
-
-  if (input > MAX_PAGE_SIZE) {
-    return MAX_PAGE_SIZE;
-  }
-
-  return input;
-};
-
-const parseNumberInput = (input: any) => {
-  if (!input) return null;
 
   try {
-    return parseInt(input);
-  } catch {
-    return null;
-  }
-};
+    // TODO: (ET) Add error handling and types for the request and response
+    const page = parseInt(req.query.page as string) || DEFAULT_PAGE_NUMBER;
+    const pageSize =
+      parseInt(req.query.pageSize as string) || DEFAULT_PAGE_SIZE;
+    const offset = (page - 1) * pageSize;
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Review[]>,
-) {
-  if (req.method === 'GET') {
-    const page = parseNumberInput(req.query.page) || DEFAULT_PAGE_NUMBER;
-    const pageSize = setPageSize(parseNumberInput(req.query.pageSize));
-
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = page * pageSize;
-
-    const dataset = data.filter(
-      (r: Review) => r.id > startIndex && r.id <= endIndex,
+    const result = await pool.query(
+      'SELECT * FROM reviews ORDER BY id ASC LIMIT $1 OFFSET $2',
+      [pageSize, offset],
     );
-    res.status(200).json(dataset);
-  } else {
-    res.status(404);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error(
+      `[DB_ERROR]: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
+
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Something went wrong while retrieving reviews.',
+    });
   }
 }
