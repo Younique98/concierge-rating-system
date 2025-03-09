@@ -1,12 +1,20 @@
 import StarRating from '@/components/StarRating';
 import { useReviews } from '../../hooks/useReviews';
 import { SkeletonLoader } from './SkeletonLoader';
+import toast from 'react-hot-toast';
+import { useEffect } from 'react';
 
 const ReviewApp = () => {
   const { reviews, isLoading, isError, page, setPage, hasMoreReviews } =
     useReviews();
-  console.log('hasMoreReviews', reviews.length);
   const onPageOne = page > 1; // TODO: (ET) handle this better
+
+  useEffect(() => {
+    if (isError) {
+      toast.error('Failed to load reviews. Please try again later.');
+    }
+  }, [isError]);
+  // TODO: (ET) Smoothen out the transition when user clicks next
   if (isLoading) {
     return (
       <div className="p-4">
@@ -16,14 +24,9 @@ const ReviewApp = () => {
       </div>
     );
   }
-  if (isError) {
-    return (
-      <p className="text-red-500">Error fetching reviews. Please try again.</p>
-    );
-  }
 
   return (
-    <div className="p-4">
+    <div className="p-4 relative">
       <h2 className="text-xl font-bold mb-4">User Reviews</h2>
       {reviews.length > 0 ? (
         <ul className="space-y-4">

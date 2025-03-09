@@ -31,7 +31,6 @@ export const useReviews = () => {
   });
 
   const hasMoreReviews = reviews.length === PAGE_SIZE;
-  console.log('hasMoreReviews in useReviews', hasMoreReviews);
   return {
     reviews,
     hasMoreReviews,

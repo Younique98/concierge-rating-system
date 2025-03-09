@@ -13,7 +13,10 @@ export default async function handler(
     return res
       .setHeader('Allow', ['GET'])
       .status(405)
-      .json({ error: 'Method Not Allowed' });
+      .json({
+        error: 'Method Not Allowed',
+        message: 'This endpoint only supports GET requests.',
+      });
   }
 
   try {
@@ -33,6 +36,7 @@ export default async function handler(
     console.error(
       `[DB_ERROR]: ${error instanceof Error ? error.message : 'Unknown error'}`,
     );
+
     return res.status(500).json({
       error: 'Internal Server Error',
       message: 'Something went wrong while retrieving reviews.',

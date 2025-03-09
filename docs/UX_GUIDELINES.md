@@ -94,12 +94,19 @@ optimal user experience.
 - Smooth animations when submitting a review.
 - Thank-you messages or confirmation prompts when submitting feedback.
 
----
+## Toast Notifications (react-hot-toast)
 
-## How We Incorporate These Principles in Development
-
-**PR Template Update** - A new section in PRs for engineers to reference which
-UX laws they considered in implementation. **Issue Tickets & Milestones** - All
-UI/UX-related tickets should reference the applicable UX laws. **Ongoing
-Evaluation** - Regularly audit UI elements to ensure adherence to best
-practices.
+- **Position:** Always **top-center** to ensure visibility and quick
+  recognition.
+- **Duration:** 4s before auto-dismissal (enough time to read but not
+  disruptive).
+- **UX Laws Considered:**
+  - **Jakob’s Law:** Users expect notifications to behave like those from
+    familiar apps.
+  - **Hick’s Law:** The decision to close/ignore the toast should be effortless.
+  - **Fitts’s Law:** Placing toasts near the center reduces mouse/eye travel
+    distance.
+- **Styling Considerations:**
+  - Error messages use **red** (`#ef4444`), success uses **green** (`#22c55e`).
+  - Toasts have rounded corners (`border-radius: 8px`) for a softer UI feel.
+  - Animations include **fade-in & fade-out** for a smooth experience.

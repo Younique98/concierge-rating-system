@@ -15,11 +15,6 @@ const Star: React.FC<StarProps> = ({
   onKeyDown,
   allowUserInput,
 }) => {
-  console.log('starId', starId);
-  console.log('marked', marked);
-  console.log('onClick', onClick);
-  console.log('onKeyDown', onKeyDown);
-  console.log('allowUserInput', allowUserInput);
   return (
     <span
       data-star-id={starId}
