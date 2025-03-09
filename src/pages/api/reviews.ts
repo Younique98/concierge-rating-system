@@ -10,13 +10,10 @@ export default async function handler(
 ) {
   if (req.method !== 'GET') {
     // TODO: (ET) Add better  error handling
-    return res
-      .setHeader('Allow', ['GET'])
-      .status(405)
-      .json({
-        error: 'Method Not Allowed',
-        message: 'This endpoint only supports GET requests.',
-      });
+    return res.setHeader('Allow', ['GET']).status(405).json({
+      error: 'Method Not Allowed',
+      message: 'This endpoint only supports GET requests.',
+    });
   }
 
   try {
