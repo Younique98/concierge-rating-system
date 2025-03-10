@@ -36,7 +36,7 @@ export const Navbar = () => {
         <nav className="hidden md:flex items-center space-x-6">
           {NAV_ITEMS.map(({ label, href, icon, className }) => (
             <Link
-              key={href}
+              key={`href-${label}`}
               href={href}
               className={clsx(
                 className,

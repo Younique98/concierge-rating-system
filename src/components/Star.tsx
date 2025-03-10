@@ -21,6 +21,7 @@ const Star: React.FC<StarProps> = ({
       className="text-3xl cursor-pointer text-opacity-100  text-primary-600"
       role="radio"
       aria-checked={marked}
+      onKeyDown={event => onKeyDown?.(event, starId)}
       tabIndex={allowUserInput ? 0 : -1} // Only allow tabbing if user input is enabled
       {...(allowUserInput && {
         onClick: () => onClick?.(starId),
