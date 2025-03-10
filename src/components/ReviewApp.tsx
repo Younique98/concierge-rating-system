@@ -91,7 +91,7 @@ const ReviewApp = () => {
           <button
             onClick={() => setPage(prev => Math.max(1, prev - 1))}
             disabled={page === 1}
-            className="px-4 py-2 border rounded disabled:opacity-50 hover:bg-primary-700"
+            className="px-4 py-2 border rounded disabled:opacity-100 hover:bg-primary-700"
           >
             Previous
           </button>

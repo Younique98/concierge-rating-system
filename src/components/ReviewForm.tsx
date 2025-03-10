@@ -67,43 +67,64 @@ export const ReviewForm = ({
       onSubmit={handleSubmit(onSubmit)}
       className="p-4 border rounded shadow mb-8 md:w-3/4 mx-auto"
     >
-      <h3 className="text-lg font-semibold mb-2">Leave a Review</h3>
+      <h2 className="text-lg font-semibold mb-2">Leave a Review</h2>
 
       {/* Author Name */}
-      <label className="block mb-2">
-        <span className="text-sm font-medium">Your Name</span>
-        <input
-          type="text"
-          {...register('author', { required: 'Name is required.' })}
-          placeholder="Your name"
-          className="border rounded border-gray-300 px-4 py-2 focus:ring-primary-500 focus:border-primary-500 w-full"
-        />
-        {errors.author && (
-          <p className="text-red-500 text-sm">{errors.author.message}</p>
-        )}
+      <label className="block mb-2" htmlFor="author">
+        <span className="text-sm font-medium">Your Name</span>{' '}
       </label>
+      <input
+        id="author"
+        aria-labelledby="author"
+        type="text"
+        {...register('author', { required: 'Name is required.' })}
+        placeholder="Your name"
+        className="border rounded border-gray-300 px-4 py-2 focus:ring-primary-500 focus:border-primary-500 w-full"
+      />
+      {errors.author && (
+        <p className="text-red-500 text-sm">{errors.author.message}</p>
+      )}
 
       {/* Star Rating */}
-      <label className="block mb-2">
-        <span className="text-sm font-medium">Rating</span>
-        <div className="flex space-x-2">
+      <div className="flex flex-col">
+        {/* Hidden input for accessibility */}
+        <label htmlFor="rating" className="block text-sm font-medium">
+          Rating
+        </label>
+
+        {/* Visually Hidden Input for Screen Readers */}
+        <input
+          type="number"
+          id="rating"
+          name="rating"
+          value={rating}
+          onChange={e => setValue('rating', Number(e.target.value))}
+          className="sr-only" // Hide visually but keep for accessibility
+          required
+        />
+
+        {/* Star Buttons as a Radio Group */}
+        <div
+          role="radiogroup"
+          aria-labelledby="rating-label"
+          className="flex space-x-2"
+        >
           {[...Array(5)].map((_, index) => (
             <button
               key={index}
               type="button"
-              onClick={() => {
-                setValue('rating', index);
-              }}
+              role="radio"
+              aria-checked={rating === index + 1}
+              aria-label={`${index + 1} star${index !== 0 ? 's' : ''}`}
+              onClick={() => setValue('rating', index + 1)}
               className={clsx(
                 'w-8 h-8 flex items-center justify-center rounded-full ',
-                rating >= index ? 'text-yellow-500' : 'text-gray-400',
+                rating > index ? 'text-yellow-500' : 'text-gray-400',
               )}
             >
-              {' '}
               <Star
-                key={index}
                 starId={index}
-                marked={index <= rating}
+                marked={index < rating}
                 {...(allowUserInput && {
                   onKeyDown: event => handleKeyDown(event, index),
                 })}
@@ -111,10 +132,12 @@ export const ReviewForm = ({
             </button>
           ))}
         </div>
+
+        {/* Error Message */}
         {errors.rating && (
           <p className="text-red-500 text-sm">{errors.rating.message}</p>
         )}
-      </label>
+      </div>
 
       {/* Review Text */}
       <label>
@@ -129,7 +152,7 @@ export const ReviewForm = ({
       <Button
         type="submit"
         disabled={isSubmitting || !rating}
-        className="w-full bg-primary-600 border text-white font-semibold py-3 p-2 rounded-md transition-all hover:bg-primary-700 mt-3 disabled:opacity-50"
+        className="w-full bg-primary-600 border text-white font-semibold py-3 p-2 rounded-md transition-all hover:bg-primary-700 mt-3 disabled:opacity-100"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Review'}
       </Button>

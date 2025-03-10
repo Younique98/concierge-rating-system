@@ -51,8 +51,8 @@ export const Navbar = () => {
 
         {/* Sign-Up & Login */}
         <div className="hidden md:flex items-center space-x-4 ">
-          <Button className="p-5 hover:bg-primary-700" asChild>
-            <Link href="/signup" className="bg-primary-500 text-xl ml-3">
+          <Button className="p-5 bg-primary-600 hover:bg-primary-700" asChild>
+            <Link href="/signup" className="bg-primary-600  text-xl ml-3">
               Sign up
             </Link>
           </Button>
@@ -67,6 +67,7 @@ export const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Toggle Menu"
               className="md:hidden hover:bg-primary-700"
             >
               <Menu className="h-6 w-6" />

@@ -82,19 +82,19 @@ const ReviewApp = () => {
           </CardHeader>
           {/* Footer for Credit */}
           <CardFooter className="flex justify-center items-center">
-            <p className="text-primary-500 font-semibold text-sm uppercase tracking-wide">
+            <p className="text-primary-600 font-semibold text-sm uppercase tracking-wide">
               FORBES
             </p>
           </CardFooter>
         </Card>
       </div>
 
-      <h2
+      <h1
         className="text-4xl text-center font-sans font-bold mb-10"
         ref={reviewSectionRef}
       >
         User Reviews
-      </h2>
+      </h1>
       {/* Review Submission Form */}
       <ReviewForm onReviewSubmitted={refetch} />
 
@@ -124,7 +124,7 @@ const ReviewApp = () => {
                   {review.review}
                 </p>
               ) : (
-                <p className="italic text-gray-400 text-sm">
+                <p className="italic text-gray-500 text-sm">
                   No written review
                 </p>
               )}
