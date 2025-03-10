@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import pool from '@/utils/db';
 
 const DEFAULT_PAGE_NUMBER = 1;
-const DEFAULT_PAGE_SIZE = 5;
+const DEFAULT_PAGE_SIZE = 10;
 
 export default async function handler(
   req: NextApiRequest,

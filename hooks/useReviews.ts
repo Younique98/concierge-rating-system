@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import Review from '@/data/Review';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 const fetchReviews = async (page: number): Promise<Review[]> => {
   const response = await fetch(
@@ -16,12 +16,12 @@ const fetchReviews = async (page: number): Promise<Review[]> => {
 
 export const useReviews = () => {
   const [page, setPage] = useState(1);
-  const PAGE_SIZE = 5;
 
   const {
     data: reviews = [],
     isLoading,
     isError,
+    isFetching,
     refetch,
   } = useQuery({
     queryKey: ['reviews', page],
@@ -39,5 +39,6 @@ export const useReviews = () => {
     page,
     setPage,
     refetch,
+    isFetching,
   };
 };

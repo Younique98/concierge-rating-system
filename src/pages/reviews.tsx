@@ -7,30 +7,56 @@ import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Quotes } from '../../public/quote';
 import { ReviewForm } from '@/components/ReviewForm';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
+import clsx from 'clsx';
 
 const ReviewApp = () => {
   const {
     reviews,
-    isLoading,
     isError,
     page,
     setPage,
     hasMoreReviews,
     refetch,
+    isFetching,
   } = useReviews();
+
   const onPageOne = page > 1; // TODO: (ET) handle this better
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
+  const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
+  const lastReviewRef = useRef(null);
+
+  const handleNextPage = () => {
+    setPage(prev => prev + 1);
+
+    setTimeout(() => {
+      reviewSectionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }, 100);
+  };
 
   useEffect(() => {
+    if (!hasMoreReviews) return;
+
     if (onPageOne && reviewSectionRef.current) {
       reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
     if (isError) {
       toast.error('Failed to load reviews. Please try again later.');
     }
-  }, [isError, onPageOne]);
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setPage(prev => prev + 1);
+      }
+    });
+
+    if (lastReviewRef.current) observer.observe(lastReviewRef.current);
+    return () => observer.disconnect();
+  }, [hasMoreReviews, isError, onPageOne, setPage]);
+
   // TODO: (ET) Smoothen out the transition when user clicks next
-  if (isLoading) {
+  if (isFetching) {
     return (
       <div className="p-4">
         <SkeletonLoader />
@@ -43,7 +69,7 @@ const ReviewApp = () => {
   return (
     <div className="p-4 relative">
       <div className="mb-36">
-        <Card className="max-w-4xl mx-auto shadow-md px-6 py-10 md:py-14 md:px-24 rounded-3xl leading-snug relative top-16 md:top-12 sm:top-0 text-center">
+        <Card className="max-w-4xl mx-auto shadow-lg px-6 py-12 md:py-16 md:px-24 rounded-3xl leading-snug relative text-center animate-fadeIn">
           <CardHeader className="flex flex-col justify-center items-center space-y-3">
             {/* Quote Icon */}
             <div className="mb-1">
@@ -74,14 +100,25 @@ const ReviewApp = () => {
 
       {/* Reviews List */}
       {reviews.length > 0 ? (
-        <ul className="space-y-4 flex items-center justify-center flex-wrap">
+        <ul
+          className="space-y-4 flex flex-col items-center justify-center min-h-[300px]"
+          aria-live="polite"
+        >
           {reviews.map(review => (
             <li
               key={review.id}
-              className="border p-5 bg-white rounded-lg shadow-md w-full max-w-3xl mx-auto min-w-[300px] flex flex-col"
+              className="border p-5 bg-white rounded-lg shadow-md w-full max-w-3xl mx-auto min-w-[300px] flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg"
             >
-              <p className="font-semibold text-lg">{review.author}</p>
-              <StarRating rating={review.rating} />
+              <p
+                ref={reviewCommentSectionRef}
+                className="font-semibold text-lg"
+              >
+                {review.author}
+              </p>
+              <StarRating
+                rating={review.rating}
+                aria-label={`Rating: ${review.rating} stars`}
+              />
               {review.review ? (
                 <p className="text-gray-700 text-sm leading-relaxed break-words">
                   {review.review}
@@ -95,16 +132,18 @@ const ReviewApp = () => {
           ))}
         </ul>
       ) : (
-        <p className="italic text-gray-500">No reviews available.</p>
+        <p className="italic text-gray-500 text-center0">
+          No reviews available.
+        </p>
       )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center mt-4 space-x-4">
+      <div className="flex justify-center mt-6 space-x-4">
         {onPageOne && (
           <button
             onClick={() => setPage(prev => Math.max(1, prev - 1))}
             disabled={page === 1}
-            className="px-4 py-2 border rounded disabled:opacity-50"
+            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
           >
             Previous
           </button>
@@ -113,13 +152,24 @@ const ReviewApp = () => {
           <button
             onClick={e => {
               e.preventDefault();
-              setPage(prev => prev + 1);
+              handleNextPage();
             }}
-            className="px-4 py-2 border rounded"
+            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
           >
             Next
           </button>
         )}
+
+        <button
+          className={clsx(
+            'px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform',
+          )}
+          onClick={() =>
+            reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+          }
+        >
+          Leave a Review
+        </button>
       </div>
     </div>
   );
