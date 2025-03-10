@@ -6,6 +6,17 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  if (req.method === 'POST') {
+    const { rating, review } = req.body;
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5.' });
+    }
+    if (review && review.length > 500) {
+      return res
+        .status(400)
+        .json({ error: 'Review cannot be more than 500 characters.' });
+    }
+  }
   if (req.method === 'GET') {
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 5;
