@@ -8,6 +8,7 @@ import { Quotes } from '../../public/quote';
 import { ReviewForm } from '@/components/ReviewForm';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import clsx from 'clsx';
+import Reviews from '@/components/Reviews';
 
 const ReviewApp = () => {
   const {
@@ -68,6 +69,7 @@ const ReviewApp = () => {
 
   return (
     <div className="p-4 relative">
+      {/* // TODO: (ET) move card out */}
       <div className="mb-36">
         <Card className="max-w-4xl mx-auto shadow-lg px-6 py-12 md:py-16 md:px-24 rounded-3xl leading-snug relative text-center animate-fadeIn">
           <CardHeader className="flex flex-col justify-center items-center space-y-3">
@@ -89,88 +91,8 @@ const ReviewApp = () => {
         </Card>
       </div>
 
-      <h1
-        className="text-4xl text-center font-sans font-bold mb-10"
-        ref={reviewSectionRef}
-      >
-        User Reviews
-      </h1>
       {/* Review Submission Form */}
-      <ReviewForm onReviewSubmitted={refetch} />
-
-      {/* Reviews List */}
-      {reviews.length > 0 ? (
-        <ul
-          className="space-y-4 flex flex-col items-center justify-center min-h-[300px]"
-          aria-live="polite"
-        >
-          {reviews.map(review => (
-            <li
-              key={review.id}
-              className="border p-5 bg-white rounded-lg shadow-md w-full max-w-3xl mx-auto min-w-[300px] flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg"
-            >
-              <p
-                ref={reviewCommentSectionRef}
-                className="font-semibold text-lg"
-              >
-                {review.author}
-              </p>
-              <StarRating
-                rating={review.rating}
-                aria-label={`Rating: ${review.rating} stars`}
-              />
-              {review.review ? (
-                <p className="text-gray-700 text-sm leading-relaxed break-words">
-                  {review.review}
-                </p>
-              ) : (
-                <p className="italic text-gray-500 text-sm">
-                  No written review
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="italic text-gray-500 text-center0">
-          No reviews available.
-        </p>
-      )}
-
-      {/* Pagination Controls */}
-      <div className="flex justify-center mt-6 space-x-4">
-        {onPageOne && (
-          <button
-            onClick={() => setPage(prev => Math.max(1, prev - 1))}
-            disabled={page === 1}
-            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
-          >
-            Previous
-          </button>
-        )}
-        {hasMoreReviews && (
-          <button
-            onClick={e => {
-              e.preventDefault();
-              handleNextPage();
-            }}
-            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
-          >
-            Next
-          </button>
-        )}
-
-        <button
-          className={clsx(
-            'px-8 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:scale-105 transition-transform',
-          )}
-          onClick={() =>
-            reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-          }
-        >
-          Leave a Review
-        </button>
-      </div>
+      <Reviews />
     </div>
   );
 };

@@ -3,17 +3,20 @@ import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 import Star from './Star';
 import { Button } from './Button';
+import { useReviews } from '../../hooks/useReviews';
 
 type TReviewFormData = {
   author: string;
   rating: number;
   review?: string;
 };
-export const ReviewForm = ({
-  onReviewSubmitted,
-}: {
+
+interface IReviewForm {
   onReviewSubmitted: () => void;
-}) => {
+}
+
+export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
+  const { submitReview } = useReviews();
   const {
     handleSubmit,
     register,
@@ -25,29 +28,33 @@ export const ReviewForm = ({
   const rating = watch('rating', 0);
   const allowUserInput = true; //TODO: (ET) replace with an auth check
 
-  const onSubmit = async (data: TReviewFormData) => {
-    try {
-      // TODO: (ET) move out and make a hook to do this called getReviews
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to submit review.');
-      }
-      if (response.ok) reset();
-      toast.success('Review submitted successfully!');
-      onReviewSubmitted();
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Failed to submit review.';
-      toast.error(errorMessage);
+  const onSubmit = (data: TReviewFormData) => {
+    if (data.review && data.review.length > 500) {
+      toast.error('Review cannot be more than 500 characters.');
+      return;
     }
+    submitReview.mutate(
+      {
+        rating: data.rating,
+        review: data.review ?? '',
+        author: data.author,
+        id: Date.now(),
+      },
+      {
+        onSuccess: () => {
+          toast.success('Review submitted successfully');
+          onReviewSubmitted();
+          reset();
+        },
+        onError: (error: any) => {
+          if (error) {
+            toast.error(
+              error.message || 'Failed to submit review. Please try again.',
+            );
+          }
+        },
+      },
+    );
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, starId: number) => {
@@ -87,7 +94,6 @@ export const ReviewForm = ({
 
       {/* Star Rating */}
       <div className="flex flex-col">
-        {/* Hidden input for accessibility */}
         <label htmlFor="rating" className="block text-sm font-medium">
           Rating
         </label>
@@ -99,11 +105,11 @@ export const ReviewForm = ({
           name="rating"
           value={rating}
           onChange={e => setValue('rating', Number(e.target.value))}
-          className="sr-only" // Hide visually but keep for accessibility
+          className="sr-only"
           required
         />
 
-        {/* Star Buttons as a Radio Group */}
+        {/* Star Buttons */}
         <div
           role="radiogroup"
           aria-labelledby="rating-label"
@@ -152,7 +158,7 @@ export const ReviewForm = ({
       <Button
         type="submit"
         disabled={isSubmitting || !rating}
-        className="w-full bg-primary-600 border text-white font-semibold py-3 p-2 rounded-md transition-all hover:bg-primary-700 mt-3 disabled:opacity-100"
+        className="w-full bg-primary-600 border text-white font-semibold py-3 p-2 rounded-md transition-all hover:bg-primary-700 mt-3 disabled:opacity-200"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Review'}
       </Button>
