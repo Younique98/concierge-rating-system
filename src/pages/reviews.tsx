@@ -3,13 +3,7 @@ import { useReviews } from '../../hooks/useReviews';
 import toast from 'react-hot-toast';
 import { useEffect, useRef, type RefObject } from 'react';
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Quotes } from '../../public/quote';
 import { ReviewForm } from '@/components/ReviewForm';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
@@ -48,22 +42,31 @@ const ReviewApp = () => {
 
   return (
     <div className="p-4 relative">
-      <Card className="md:mx-16 hidden md:inline-block lg:mx-28 sm:mx-36 shadow-md px-6 md:py-10 md:px-28 rounded-3xl leading-snug top-16 2xs:top-12 2xs:mb-0 sm:top-0 mb-16 text-center py-10">
-        <CardHeader className=" flex justify-center items-center">
-          <p className="mb-1">
-            <Quotes />
-          </p>
-          <CardTitle className="text-3xl font-extrabold text-primary-600 md:text-5xl text-center">
-            Ranked 5 out of 5 stars as the best award booking service
-          </CardTitle>
-        </CardHeader>
-        <CardContent></CardContent>
-        <CardFooter className=" flex justify-center items-center">
-          <p className="text-primary-500 font-semibold text-xs">FORBES</p>
-        </CardFooter>
-      </Card>
+      <div className="mb-36">
+        <Card className="max-w-4xl mx-auto shadow-md px-6 py-10 md:py-14 md:px-24 rounded-3xl leading-snug relative top-16 md:top-12 sm:top-0 text-center">
+          <CardHeader className="flex flex-col justify-center items-center space-y-3">
+            {/* Quote Icon */}
+            <div className="mb-1">
+              <Quotes />
+            </div>
+            {/* Headline */}
+            <CardTitle className="text-2xl font-extrabold text-primary-600 md:text-4xl lg:text-5xl text-center leading-tight">
+              Ranked 5 out of 5 stars as the best award booking service
+            </CardTitle>
+          </CardHeader>
+          {/* Footer for Credit */}
+          <CardFooter className="flex justify-center items-center">
+            <p className="text-primary-500 font-semibold text-sm uppercase tracking-wide">
+              FORBES
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
 
-      <h2 className="text-xl font-bold mb-4" ref={reviewSectionRef}>
+      <h2
+        className="text-4xl text-center font-sans font-bold mb-10"
+        ref={reviewSectionRef}
+      >
         User Reviews
       </h2>
       {/* Review Submission Form */}

@@ -15,8 +15,9 @@ export const ReviewForm = ({
   onReviewSubmitted: () => void;
 }) => {
   const {
-    register,
     handleSubmit,
+    register,
+    reset,
     setValue,
     watch,
     formState: { errors, isSubmitting },
@@ -39,6 +40,7 @@ export const ReviewForm = ({
       if (!response.ok) {
         throw new Error(result.message || 'Failed to submit review.');
       }
+      if (response.ok) reset();
       toast.success('Review submitted successfully!');
       onReviewSubmitted();
     } catch (error) {
