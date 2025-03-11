@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import Review from '@/data/Review';
+import { useError } from '@/context/ErrorContext';
 
 const PAGE_SIZE = 10;
 
@@ -18,6 +19,7 @@ export const useReviews = () => {
   const [page, setPage] = useState(1);
   const PAGE_NUMBER = page.toString();
   const queryClient = useQueryClient();
+  const { setError } = useError();
 
   const {
     data: reviews = [],
@@ -35,19 +37,28 @@ export const useReviews = () => {
 
   const submitReview = useMutation({
     mutationFn: async (newReview: Review) => {
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newReview),
-      });
+      try {
+        const response = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newReview),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit review.');
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to submit review.');
+        }
+        return response.json();
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Something went wrong while submitting the review.';
+        setError(errorMessage);
+        throw error;
       }
-      return response.json();
     },
 
     onMutate: async newReview => {

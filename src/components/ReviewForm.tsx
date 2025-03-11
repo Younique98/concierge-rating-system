@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import Star from './Star';
 import { Button } from './Button';
 import { useReviews } from '../../hooks/useReviews';
+import { useError } from '@/context/ErrorContext';
 
 type TReviewFormData = {
   author: string;
@@ -27,10 +28,11 @@ export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
   } = useForm<TReviewFormData>();
   const rating = watch('rating', 0);
   const allowUserInput = true; //TODO: (ET) replace with an auth check
+  const { setError } = useError();
 
   const onSubmit = (data: TReviewFormData) => {
     if (data.review && data.review.length > 500) {
-      toast.error('Review cannot be more than 500 characters.');
+      setError('Review cannot be more than 500 characters.');
       return;
     }
     submitReview.mutate(
@@ -48,7 +50,7 @@ export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
         },
         onError: (error: any) => {
           if (error) {
-            toast.error(
+            setError(
               error.message || 'Failed to submit review. Please try again.',
             );
           }
