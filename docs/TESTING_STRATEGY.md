@@ -24,7 +24,7 @@ ensure reliability, security, and performance.
 
   **Integration Testing**
 
-- `ReviewApp.tsx` with a mocked API to verify data flow.
+- `Reviews.tsx` with a mocked API to verify data flow.
 - Ensures components interact correctly.
 
   **API Testing**

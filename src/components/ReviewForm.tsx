@@ -71,10 +71,14 @@ export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
 
   return (
     <form
+      role="form"
+      aria-labelledby="review-form-title"
       onSubmit={handleSubmit(onSubmit)}
       className="p-4 border rounded shadow mb-8 md:w-3/4 mx-auto"
     >
-      <h2 className="text-lg font-semibold mb-2">Leave a Review</h2>
+      <h2 id="review-form-title" className="text-lg font-semibold mb-2">
+        Leave a Review
+      </h2>
 
       {/* Author Name */}
       <label className="block mb-2" htmlFor="author">

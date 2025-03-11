@@ -7,10 +7,9 @@ import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Quotes } from '../../public/quote';
 import { ReviewForm } from '@/components/ReviewForm';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
-import clsx from 'clsx';
 import Reviews from '@/components/Reviews';
 
-const ReviewApp = () => {
+const CustomerReviews = () => {
   const {
     reviews,
     isError,
@@ -97,5 +96,5 @@ const ReviewApp = () => {
   );
 };
 
-ReviewApp.displayName = 'ReviewApp';
-export default ReviewApp;
+CustomerReviews.displayName = 'CustomerReviews';
+export default CustomerReviews;

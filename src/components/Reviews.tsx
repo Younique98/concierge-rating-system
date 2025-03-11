@@ -4,7 +4,6 @@ import { SkeletonLoader } from './SkeletonLoader';
 import toast from 'react-hot-toast';
 import { RefObject, useEffect, useRef } from 'react';
 import { ReviewForm } from './ReviewForm';
-import Review from '@/data/Review';
 import clsx from 'clsx';
 
 const Reviews = () => {
