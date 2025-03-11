@@ -1,13 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import pool from '@/utils/db';
+import Cors from 'cors';
+import rateLimit from 'express-rate-limit';
+import { withCors } from '@/lib/middleware/cors';
+import { withRateLimit } from '@/lib/middleware/rateLimit';
 
 const DEFAULT_PAGE_NUMBER = 1;
 const DEFAULT_PAGE_SIZE = 10;
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
+async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
     try {
       const page = parseInt(req.query.page as string) || DEFAULT_PAGE_NUMBER;
@@ -66,4 +67,11 @@ export default async function handler(
       error: 'Method Not Allowed',
     });
   }
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  return await withCors(withRateLimit(reviewsHandler))(req, res);
 }

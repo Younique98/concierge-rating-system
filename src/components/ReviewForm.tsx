@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
-import { useForm } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import Star from './Star';
 import { Button } from './Button';
 import { useReviews } from '@/context/ReviewContext';
@@ -15,7 +15,7 @@ type TReviewFormData = {
 interface IReviewForm {}
 
 export const ReviewForm: React.FC<IReviewForm> = () => {
-  const { addReview } = useReviews();
+  const { submitReview, refetch } = useReviews();
   const {
     handleSubmit,
     register,
@@ -23,22 +23,29 @@ export const ReviewForm: React.FC<IReviewForm> = () => {
     setValue,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<TReviewFormData>();
+  } = useForm<TReviewFormData>({ mode: 'onChange' });
   const rating = watch('rating', 0);
   const allowUserInput = true; //TODO: (ET) replace with an auth check
   const { setError } = useError();
 
-  const onSubmit = (data: TReviewFormData) => {
+  const onSubmit = async (data: TReviewFormData) => {
     if (data.review && data.review.length > 500) {
       setError('Review cannot be more than 500 characters.');
       return;
     }
-    addReview({
-      rating: data.rating,
-      review: data.review ?? '',
-      author: data.author,
-      id: Date.now(),
-    });
+    try {
+      await submitReview.mutateAsync({
+        rating: data.rating,
+        review: data.review ?? '',
+        author: data.author,
+        id: Date.now(),
+      });
+      await refetch();
+      toast.success('Review submitted successfully!');
+      reset();
+    } catch (error) {
+      toast.error('Failed to submit review.');
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, starId: number) => {
@@ -57,6 +64,8 @@ export const ReviewForm: React.FC<IReviewForm> = () => {
     <form
       role="form"
       aria-labelledby="review-form-title"
+      // onSubmit={
+      //   handleSubmit( onSubmit )}
       onSubmit={handleSubmit(onSubmit)}
       className="p-4 border rounded shadow mb-8 md:w-3/4 mx-auto"
     >

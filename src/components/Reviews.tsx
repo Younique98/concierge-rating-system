@@ -7,11 +7,20 @@ import { ReviewForm } from './ReviewForm';
 import clsx from 'clsx';
 
 const Reviews = () => {
-  const { reviews, isError, hasMoreReviews, isFetching } = useReviews();
-
+  const {
+    reviews,
+    isError,
+    hasMoreReviews,
+    isFetching,
+    isLoading,
+    prevPage,
+    nextPage,
+    page,
+  } = useReviews();
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);
+  const onFirstPage = page !== 1;
 
   const handleNextPage = () => {
     setTimeout(() => {
@@ -100,17 +109,25 @@ const Reviews = () => {
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-6 space-x-4">
-        {
-          <button className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all">
+        {onFirstPage && (
+          <button
+            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
+            type="button"
+            aria-label={`Go to previous page, page ${page - 1}`}
+            aria-disabled={page === 1 || isLoading}
+            tabIndex={page === 1 || isLoading ? -1 : 0}
+            onClick={prevPage}
+          >
             Previous
           </button>
-        }
+        )}
         {hasMoreReviews && (
           <button
-            onClick={e => {
-              e.preventDefault();
-              handleNextPage();
-            }}
+            onClick={nextPage}
+            type="button"
+            aria-label={`Go to next page, page ${page + 1}`}
+            aria-disabled={!hasMoreReviews || isLoading}
+            tabIndex={!hasMoreReviews || isLoading ? -1 : 0}
             className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
           >
             Next

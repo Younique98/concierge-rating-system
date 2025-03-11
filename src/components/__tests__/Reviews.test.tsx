@@ -62,7 +62,7 @@ describe('Reviews Component', () => {
       isLoading: false,
       setPage: jest.fn(),
       hasMoreReviews: false,
-      addReview: jest.fn(),
+      submitReview: jest.fn(),
     });
 
     render(<Reviews />, { wrapper: TestProvider });

@@ -1,9 +1,17 @@
-import { createContext, useContext, ReactNode, useMemo } from 'react';
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useState,
+  useCallback,
+} from 'react';
 import {
   useMutation,
   useQuery,
   QueryClientProvider,
   QueryClient,
+  UseMutationResult,
 } from '@tanstack/react-query';
 import Review from '@/data/Review';
 import { useError } from '@/context/ErrorContext';
@@ -14,12 +22,26 @@ interface IReviewContext {
   isLoading: boolean;
   isError: boolean;
   isFetching: boolean;
-  addReview: (newReview: Review) => void;
+  page: number;
+  setPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
+  refetch: () => void;
+  submitReview: UseMutationResult<any, Error, Review, any>;
 }
 
 const ReviewContext = createContext<IReviewContext | null>(null);
 
 const PAGE_SIZE = 10;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+    },
+  },
+});
 
 const fetchReviews = async (page: number): Promise<Review[]> => {
   const response = await fetch(
@@ -33,19 +55,33 @@ const fetchReviews = async (page: number): Promise<Review[]> => {
 export const ReviewProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
   const { setError } = useError();
+  const [page, setPage] = useState<number>(1);
 
   const {
     data: reviews = [],
     isLoading,
     isError,
     isFetching,
+    refetch,
   } = useQuery<Review[], Error>({
-    queryKey: ['reviews'],
-    queryFn: () => fetchReviews(1),
+    queryKey: ['reviews', page],
+    queryFn: () => fetchReviews(page),
     staleTime: 1000 * 60 * 5,
     retry: 2,
     placeholderData: prevData => prevData ?? [],
   });
+  //pagination
+  const nextPage = useCallback(() => {
+    if (reviews.length === PAGE_SIZE) {
+      setPage(prev => prev + 1);
+    }
+  }, [reviews.length]);
+
+  const prevPage = useCallback(() => {
+    if (page > 1) {
+      setPage(prev => prev - 1);
+    }
+  }, [page]);
 
   const submitReview = useMutation({
     mutationFn: async (newReview: Review) => {
@@ -77,14 +113,10 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       await queryClient.cancelQueries({ queryKey: ['reviews'] });
 
       const previousReviews = queryClient.getQueryData<Review[]>(['reviews']);
-      queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
-        ...old,
-        { ...newReview, id: Date.now() },
-      ]);
 
       queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
-        ...old,
         { ...newReview, id: Date.now() },
+        ...old,
       ]);
 
       return { previousReviews };
@@ -95,13 +127,15 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
         queryClient.setQueryData(['reviews'], context.previousReviews);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews', page] });
+      queryClient.refetchQueries({ queryKey: ['reviews', page] });
+      // Reset to page 1 after submitting a review
+      setPage(1);
     },
   });
 
   const hasMoreReviews = reviews.length === PAGE_SIZE;
-
   const value = useMemo(
     () => ({
       reviews,
@@ -109,7 +143,12 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       isError,
       isFetching,
-      addReview: submitReview.mutate, // Expose as addReview
+      submitReview,
+      refetch,
+      page,
+      setPage,
+      nextPage,
+      prevPage,
     }),
     [
       reviews,
@@ -117,13 +156,23 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       isError,
       isFetching,
-      submitReview.mutate,
+      submitReview,
+      refetch,
+      page,
+      nextPage,
+      prevPage,
     ],
   );
 
   return (
+    <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
+  );
+};
+
+export const ReviewQueryProvider = ({ children }: { children: ReactNode }) => {
+  return (
     <QueryClientProvider client={queryClient}>
-      <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
+      <ReviewProvider>{children}</ReviewProvider>
     </QueryClientProvider>
   );
 };
