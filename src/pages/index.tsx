@@ -1,5 +1,5 @@
 import { Inter } from 'next/font/google';
-import Reviews from '@/components/Reviews';
+import CustomerReviews from './reviews';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -9,8 +9,7 @@ export default function Home() {
       <main
         className={`flex min-h-screen flex-col items-center p-24 ${inter.className}`}
       >
-        <h1>Review App</h1>
-        <Reviews />
+        <CustomerReviews />
       </main>
     </>
   );
