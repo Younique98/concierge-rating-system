@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import pool from '@/utils/db';
-import Cors from 'cors';
-import rateLimit from 'express-rate-limit';
 import { withCors } from '@/lib/middleware/cors';
 import { withRateLimit } from '@/lib/middleware/rateLimit';
+import { sanitizeInput } from '@/utils/sanitize';
 
 const DEFAULT_PAGE_NUMBER = 1;
 const DEFAULT_PAGE_SIZE = 10;
@@ -45,9 +44,13 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
           message: 'Author name is required.',
         });
       }
+
+      const sanitizedReview = review ? sanitizeInput(review) : null;
+      const sanitizedAuthor = sanitizeInput(author);
+
       const result = await pool.query(
         'INSERT INTO reviews (rating, review, author) VALUES ($1, $2, $3) RETURNING *',
-        [rating, review || null, author],
+        [rating, sanitizedReview || null, sanitizedAuthor],
       );
       return res
         .status(201)
