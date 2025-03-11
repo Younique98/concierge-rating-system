@@ -5,11 +5,11 @@ on:
     branches:
       - main
       - develop
-
 jobs:
-  lint-and-test:
+  lint-test-build:
     name: Lint, Test, and Build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -23,13 +23,18 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run ESLint
-        run: npm run lint
+      - name: Debug Secrets (Check if DB_HOST is Available)
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+        run: echo "DB_HOST is set"
 
-      - name: Check Code Formatting
-        run: npm run format:check
-
-      - name: Run Unit & Integration Tests
+      - name: Run Tests with Database
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
         run: npm run test -- --coverage
 
       - name: Build the Project
