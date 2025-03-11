@@ -3,18 +3,11 @@ import Reviews from '@/components/Reviews';
 import { useReviews } from '../../../hooks/useReviews';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
+import { TestProvider } from '@/tests/TestProvider';
 
 jest.mock('../../../hooks/useReviews', () => ({
   useReviews: jest.fn(),
 }));
-
-const createWrapper = () => {
-  const queryClient = new QueryClient();
-  // eslint-disable-next-line react/display-name
-  return ({ children }: { children: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
 
 describe('Reviews Component', () => {
   beforeEach(() => {
@@ -35,7 +28,7 @@ describe('Reviews Component', () => {
       refetch: jest.fn(),
     });
 
-    render(<Reviews />, { wrapper: createWrapper() });
+    render(<Reviews />, { wrapper: TestProvider });
 
     expect(screen.getByText('User Reviews')).toBeInTheDocument();
     expect(screen.getByText('Great service!')).toBeInTheDocument();
@@ -54,7 +47,7 @@ describe('Reviews Component', () => {
       refetch: jest.fn(),
     });
 
-    render(<Reviews />, { wrapper: createWrapper() });
+    render(<Reviews />, { wrapper: TestProvider });
 
     await waitFor(() =>
       expect(screen.getByText(/No reviews available/i)).toBeInTheDocument(),
@@ -73,7 +66,7 @@ describe('Reviews Component', () => {
       refetch: jest.fn(),
     });
 
-    render(<Reviews />, { wrapper: createWrapper() });
+    render(<Reviews />, { wrapper: TestProvider });
 
     const nextButton = screen.getByRole('button', { name: /next/i });
     fireEvent.click(nextButton);
@@ -95,7 +88,7 @@ describe('Reviews Component', () => {
       refetch: jest.fn(),
     });
 
-    const { getByRole } = render(<Reviews />, { wrapper: createWrapper() });
+    const { getByRole } = render(<Reviews />, { wrapper: TestProvider });
 
     const nextButton = getByRole('button', { name: /next/i });
     fireEvent.click(nextButton);
@@ -119,7 +112,7 @@ describe('Reviews Component', () => {
       refetch: jest.fn(),
     });
 
-    render(<Reviews />, { wrapper: createWrapper() });
+    render(<Reviews />, { wrapper: TestProvider });
 
     expect(screen.getByText(/no reviews available/i)).toBeInTheDocument();
   });

@@ -1,13 +1,6 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { ReviewForm } from '@/components/ReviewForm';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const customRender = (ui: React.ReactElement) => {
-  const queryClient = new QueryClient();
-  return render(
-    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
-  );
-};
 describe('ReviewForm Component', () => {
   it('renders correctly', () => {
     customRender(<ReviewForm onReviewSubmitted={jest.fn()} />);

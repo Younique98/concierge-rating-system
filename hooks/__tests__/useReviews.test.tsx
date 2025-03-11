@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useReviews } from '../useReviews';
 import { waitFor } from '@testing-library/react';
+import { TestProvider } from '@/tests/TestProvider';
 
 jest.mock('../useReviews', () => ({
   ...jest.requireActual('../useReviews'),
@@ -24,7 +25,7 @@ const createWrapper = () => {
 describe('useReviews Hook', () => {
   it('handles pagination correctly', async () => {
     const { result } = renderHook(() => useReviews(), {
-      wrapper: createWrapper(),
+      wrapper: TestProvider,
     });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -40,7 +41,7 @@ describe('useReviews Hook', () => {
 
   it('optimistically updates UI when submitting a review', async () => {
     const { result } = renderHook(() => useReviews(), {
-      wrapper: createWrapper(),
+      wrapper: TestProvider,
     });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -62,7 +63,7 @@ describe('useReviews Hook', () => {
   });
   it('increments page when setPage is called', async () => {
     const { result } = renderHook(() => useReviews(), {
-      wrapper: createWrapper(),
+      wrapper: TestProvider,
     });
 
     act(() => {
@@ -74,7 +75,7 @@ describe('useReviews Hook', () => {
 
   it('triggers mutation when submitting a review', async () => {
     const { result } = renderHook(() => useReviews(), {
-      wrapper: createWrapper(),
+      wrapper: TestProvider,
     });
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
