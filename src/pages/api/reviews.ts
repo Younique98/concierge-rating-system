@@ -3,21 +3,11 @@ import pool from '@/utils/db';
 import { withCors } from '@/lib/middleware/cors';
 import { withRateLimit } from '@/lib/middleware/rateLimit';
 import { sanitizeInput } from '@/utils/sanitize';
-import helmet from 'helmet';
+import logger from '@/utils/logger';
+import { applySecurityHeaders } from '@/utils/security';
 
 const DEFAULT_PAGE_NUMBER = 1;
 const DEFAULT_PAGE_SIZE = 10;
-
-// Apply security headers
-const applySecurityHeaders = (req: NextApiRequest, res: NextApiResponse) => {
-  helmet({
-    contentSecurityPolicy: false, // Handled in `next.config.mjs`
-    frameguard: { action: 'sameorigin' },
-    xssFilter: true,
-    noSniff: true,
-    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  })(req as any, res as any, () => {});
-};
 
 async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
   applySecurityHeaders(req, res); // Apply security headers
@@ -33,6 +23,7 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
         'SELECT * FROM reviews ORDER BY id DESC LIMIT $1 OFFSET $2',
         [pageSize, offset],
       );
+      logger.info(`GET /api/reviews - 200 - ${req.socket.remoteAddress}`);
       return res.status(200).json(result.rows);
     } catch (error) {
       console.error(
@@ -54,6 +45,9 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
     try {
       const { rating, review, author } = req.body;
       if (!rating || rating < 1 || rating > 5) {
+        logger.warn(
+          `POST /api/reviews - 400 - Invalid rating value from ${req.socket.remoteAddress}`,
+        );
         return res.status(400).json({
           error: 'Invalid rating value',
           message: 'Rating must be between 1 and 5.',
@@ -73,12 +67,15 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
         'INSERT INTO reviews (rating, review, author) VALUES ($1, $2, $3) RETURNING *',
         [rating, sanitizedReview || null, sanitizedAuthor],
       );
+      logger.info(
+        `POST /api/reviews - 201 - Review submitted by ${author} from ${req.socket.remoteAddress}`,
+      );
       return res
         .status(201)
         .json({ message: 'Review submitted', review: result.rows[0] });
     } catch (error) {
-      console.error(
-        `[DB_ERROR]: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      logger.error(
+        `500 Internal Server Error - ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
       return res.status(500).json({
         error: 'Internal Server Error',
@@ -87,6 +84,7 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
     }
   } else {
     res.setHeader('Allow', ['GET', 'POST']);
+    logger.warn(`405 Method Not Allowed - ${req.method}`);
     return res.status(405).json({
       error: 'Method Not Allowed',
     });
