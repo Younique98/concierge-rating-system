@@ -25,11 +25,12 @@ export const useReviews = () => {
     isError,
     isFetching,
     refetch,
-  } = useQuery({
+  } = useQuery<Review[], Error>({
     queryKey: ['reviews', page],
     queryFn: () => fetchReviews(page),
-    staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
-    retry: 2, // Retry twice on failure
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+    placeholderData: prevData => prevData ?? [],
   });
 
   const submitReview = useMutation({

@@ -5,7 +5,14 @@ import { Toaster } from 'react-hot-toast';
 import { Navbar } from '@/components/NavBar';
 import Head from 'next/head';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      gcTime: 1000 * 60 * 30,
+      staleTime: 1000 * 60 * 10,
+    },
+  },
+});
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
