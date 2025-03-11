@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { Navbar } from '@/components/NavBar';
 import Head from 'next/head';
 import { ErrorProvider } from '@/context/ErrorContext';
+import { ReviewProvider } from '@/context/ReviewContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +42,9 @@ export default function App({ Component, pageProps }: AppProps) {
             },
           }}
         />
-        <Component {...pageProps} />
+        <ReviewProvider>
+          <Component {...pageProps} />
+        </ReviewProvider>
       </ErrorProvider>
     </QueryClientProvider>
   );

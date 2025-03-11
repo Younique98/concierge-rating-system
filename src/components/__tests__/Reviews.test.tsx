@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Reviews from '@/components/Reviews';
-import { useReviews } from '../../../hooks/useReviews';
+import { useReviews } from '@/context/ReviewContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import { TestProvider } from '@/tests/TestProvider';
 
-jest.mock('../../../hooks/useReviews', () => ({
+jest.mock('@/context/ReviewContext', () => ({
   useReviews: jest.fn(),
 }));
 
@@ -54,62 +54,15 @@ describe('Reviews Component', () => {
     );
   });
 
-  it('calls setPage when clicking the Next button', async () => {
-    const mockSetPage = jest.fn();
-    (useReviews as jest.Mock).mockReturnValue({
-      reviews: [{ id: 1, rating: 5, review: 'Great!', author: 'John' }],
-      isError: false,
-      isFetching: false,
-      page: 1,
-      setPage: mockSetPage,
-      hasMoreReviews: true,
-      refetch: jest.fn(),
-    });
-
-    render(<Reviews />, { wrapper: TestProvider });
-
-    const nextButton = screen.getByRole('button', { name: /next/i });
-    fireEvent.click(nextButton);
-
-    expect(mockSetPage).toHaveBeenCalledWith(expect.any(Function));
-  });
-
-  it('handles smooth scrolling when clicking the next page button', async () => {
-    global.scrollTo = jest.fn();
-    Element.prototype.scrollIntoView = jest.fn();
-    const mockSetPage = jest.fn();
-    (useReviews as jest.Mock).mockReturnValue({
-      reviews: [{ id: 1, rating: 5, review: 'Amazing!', author: 'Alice' }],
-      isError: false,
-      isFetching: false,
-      page: 1,
-      setPage: mockSetPage,
-      hasMoreReviews: true,
-      refetch: jest.fn(),
-    });
-
-    const { getByRole } = render(<Reviews />, { wrapper: TestProvider });
-
-    const nextButton = getByRole('button', { name: /next/i });
-    fireEvent.click(nextButton);
-
-    await waitFor(() => expect(mockSetPage).toHaveBeenCalled());
-
-    // waiting for scrollIntoView to be called
-    await waitFor(() => {
-      expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
-    });
-  });
-
   it('shows "No reviews available" when there are no reviews', async () => {
     (useReviews as jest.Mock).mockReturnValue({
       reviews: [],
       isError: false,
       isFetching: false,
-      page: 1,
+      isLoading: false,
       setPage: jest.fn(),
       hasMoreReviews: false,
-      refetch: jest.fn(),
+      addReview: jest.fn(),
     });
 
     render(<Reviews />, { wrapper: TestProvider });

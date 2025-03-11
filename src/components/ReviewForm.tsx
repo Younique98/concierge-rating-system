@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useForm } from 'react-hook-form';
 import Star from './Star';
 import { Button } from './Button';
-import { useReviews } from '../../hooks/useReviews';
+import { useReviews } from '@/context/ReviewContext';
 import { useError } from '@/context/ErrorContext';
 
 type TReviewFormData = {
@@ -12,12 +12,10 @@ type TReviewFormData = {
   review?: string;
 };
 
-interface IReviewForm {
-  onReviewSubmitted: () => void;
-}
+interface IReviewForm {}
 
-export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
-  const { submitReview } = useReviews();
+export const ReviewForm: React.FC<IReviewForm> = () => {
+  const { addReview } = useReviews();
   const {
     handleSubmit,
     register,
@@ -35,28 +33,12 @@ export const ReviewForm: React.FC<IReviewForm> = ({ onReviewSubmitted }) => {
       setError('Review cannot be more than 500 characters.');
       return;
     }
-    submitReview.mutate(
-      {
-        rating: data.rating,
-        review: data.review ?? '',
-        author: data.author,
-        id: Date.now(),
-      },
-      {
-        onSuccess: () => {
-          toast.success('Review submitted successfully');
-          onReviewSubmitted();
-          reset();
-        },
-        onError: (error: any) => {
-          if (error) {
-            setError(
-              error.message || 'Failed to submit review. Please try again.',
-            );
-          }
-        },
-      },
-    );
+    addReview({
+      rating: data.rating,
+      review: data.review ?? '',
+      author: data.author,
+      id: Date.now(),
+    });
   };
 
   const handleKeyDown = (event: React.KeyboardEvent, starId: number) => {

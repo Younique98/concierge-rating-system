@@ -1,5 +1,5 @@
 import StarRating from '@/components/StarRating';
-import { useReviews } from '../../hooks/useReviews';
+import { useReviews } from '@/context/ReviewContext';
 import { SkeletonLoader } from './SkeletonLoader';
 import toast from 'react-hot-toast';
 import { RefObject, useEffect, useRef } from 'react';
@@ -7,24 +7,13 @@ import { ReviewForm } from './ReviewForm';
 import clsx from 'clsx';
 
 const Reviews = () => {
-  const {
-    reviews,
-    isError,
-    page,
-    setPage,
-    hasMoreReviews,
-    refetch,
-    isFetching,
-  } = useReviews();
+  const { reviews, isError, hasMoreReviews, isFetching } = useReviews();
 
-  const onPageOne = page > 1; // TODO: (ET) handle this better
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);
 
   const handleNextPage = () => {
-    setPage(prev => prev + 1);
-
     setTimeout(() => {
       reviewSectionRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -35,22 +24,19 @@ const Reviews = () => {
   useEffect(() => {
     if (!hasMoreReviews) return;
 
-    if (onPageOne && reviewSectionRef.current) {
-      reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
     if (isError) {
       toast.error('Failed to load reviews. Please try again later.');
     }
 
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
-        setPage(prev => prev + 1);
+        handleNextPage();
       }
     });
 
     if (lastReviewRef.current) observer.observe(lastReviewRef.current);
     return () => observer.disconnect();
-  }, [hasMoreReviews, isError, onPageOne, setPage]);
+  }, [hasMoreReviews, isError]);
 
   // TODO: (ET) Smoothen out the transition when user clicks next
   if (isFetching) {
@@ -71,7 +57,7 @@ const Reviews = () => {
         User Reviews
       </h1>
       {/* Review Submission Form */}
-      <ReviewForm onReviewSubmitted={refetch} />
+      <ReviewForm />
 
       {/* Reviews List */}
       {reviews.length > 0 ? (
@@ -114,15 +100,11 @@ const Reviews = () => {
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-6 space-x-4">
-        {onPageOne && (
-          <button
-            onClick={() => setPage(prev => Math.max(1, prev - 1))}
-            disabled={page === 1}
-            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
-          >
+        {
+          <button className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all">
             Previous
           </button>
-        )}
+        }
         {hasMoreReviews && (
           <button
             onClick={e => {
