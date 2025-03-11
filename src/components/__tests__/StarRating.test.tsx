@@ -1,6 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import StarRating from '@/components/StarRating';
 import '@testing-library/jest-dom';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
+test('StarRating component is accessible', async () => {
+  const { container } = render(<StarRating rating={3} />);
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+});
 
 describe('StarRating Component', () => {
   it('renders five stars', () => {

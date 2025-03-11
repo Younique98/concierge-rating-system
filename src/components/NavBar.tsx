@@ -38,6 +38,7 @@ export const Navbar = () => {
             <Link
               key={`href-${label}`}
               href={href}
+              aria-label={label}
               className={clsx(
                 className,
                 'text-black-700 font-semibold text hover:text-primary-700 dark:text-gray-300 dark:hover:text-white transition',
