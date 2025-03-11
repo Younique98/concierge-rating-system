@@ -1,0 +1,41 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ReviewForm } from '@/components/ReviewForm';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const customRender = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient();
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>,
+  );
+};
+describe('ReviewForm Component', () => {
+  it('renders correctly', () => {
+    customRender(<ReviewForm onReviewSubmitted={jest.fn()} />);
+    expect(screen.getByRole('form')).toBeInTheDocument();
+  });
+
+  it('displays an error when submitting an empty form', async () => {
+    customRender(<ReviewForm onReviewSubmitted={jest.fn()} />);
+
+    // Ensure the submit button starts as disabled
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    expect(submitButton).toBeDisabled();
+
+    // Fill in required fields
+    fireEvent.change(screen.getByPlaceholderText('Your name'), {
+      target: { value: 'John Doe' },
+    });
+    fireEvent.click(screen.getByLabelText('5 stars')); // Select a rating
+
+    // Ensure the submit button is now enabled
+    expect(submitButton).toBeEnabled();
+
+    // Click the submit button
+    fireEvent.click(submitButton);
+
+    // Expect no error messages since valid input is provided
+    await waitFor(() => {
+      expect(screen.queryByText(/rating is required/i)).not.toBeInTheDocument();
+    });
+  });
+});

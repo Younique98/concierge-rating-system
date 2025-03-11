@@ -18,15 +18,14 @@ const Star: React.FC<StarProps> = ({
   return (
     <span
       data-star-id={starId}
-      className="text-3xl cursor-pointer text-opacity-100  text-primary-600"
+      className="text-3xl cursor-pointer text-primary-600"
       role="radio"
       aria-checked={marked}
-      onKeyDown={event => onKeyDown?.(event, starId)}
-      tabIndex={allowUserInput ? 0 : -1} // Only allow tabbing if user input is enabled
-      {...(allowUserInput && {
-        onClick: () => onClick?.(starId),
-        onKeyDown: event => onKeyDown?.(event, starId),
-      })}
+      tabIndex={allowUserInput ? 0 : -1}
+      onClick={allowUserInput ? () => onClick?.(starId) : undefined}
+      onKeyDown={
+        allowUserInput ? event => onKeyDown?.(event, starId) : undefined
+      }
     >
       {marked ? '★' : '☆'}
     </span>

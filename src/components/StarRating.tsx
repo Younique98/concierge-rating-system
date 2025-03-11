@@ -49,12 +49,9 @@ const StarRating: React.FC<StarRatingProps> = ({
             key={index}
             starId={index}
             marked={index <= selectedRating}
-            onKeyDown={event => {
-              handleKeyDown(event, index);
-            }}
-            {...(allowUserInput && {
-              onClick: () => handleRatingChange(index),
-            })}
+            allowUserInput={allowUserInput}
+            onKeyDown={handleKeyDown}
+            onClick={handleRatingChange}
           />
         ))}
       </div>
