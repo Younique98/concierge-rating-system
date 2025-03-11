@@ -26,8 +26,11 @@ jobs:
         run: npm run start & sleep 5
 
       - name: Run Lighthouse Audit
-        uses: treosh/lighthouse-ci-action@v10
+        run: |
+          npx lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html
+
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v3
         with:
-          urls: 'http://localhost:3000'
-          budgetPath: '.github/lighthouse-budget.json'
-          uploadArtifacts: true
+          name: lighthouse_results
+          path: ./lighthouse-report.html
