@@ -14,7 +14,7 @@ interface IReviewContext {
   isLoading: boolean;
   isError: boolean;
   isFetching: boolean;
-  addReview: (newReview: Review) => void;
+  submitReview: (newReview: Review) => void;
 }
 
 const ReviewContext = createContext<IReviewContext | null>(null);
@@ -78,8 +78,8 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
 
       const previousReviews = queryClient.getQueryData<Review[]>(['reviews']);
       queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
-        ...old,
         { ...newReview, id: Date.now() },
+        ...old,
       ]);
 
       queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
@@ -109,16 +109,9 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       isError,
       isFetching,
-      addReview: submitReview.mutate, // Expose as addReview
+      submitReview: submitReview.mutate,
     }),
-    [
-      reviews,
-      hasMoreReviews,
-      isLoading,
-      isError,
-      isFetching,
-      submitReview.mutate,
-    ],
+    [reviews, hasMoreReviews, isLoading, isError, isFetching, submitReview],
   );
 
   return (
