@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - develop
+
 jobs:
   lint-test-build:
     name: Lint, Test, and Build
@@ -12,30 +13,43 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Cache Next.js Build & Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-
+
+      - name: Install Dependencies (Fast)
+        run: npm ci
 
       - name: Debug Secrets (Check if DB_HOST is Available)
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
         run: echo "DB_HOST is set"
 
-      - name: Run Tests with Database
+      - name: Run Linting
+        run: npm run lint
+
+      - name: Run Tests with Database (Only for Changed Files)
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PORT: ${{ secrets.DB_PORT }}
-        run: npm run test -- --coverage
+        run: npm test -- --changedSince=origin/main --coverage
 
       - name: Build the Project
         run: npm run build
