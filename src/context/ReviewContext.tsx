@@ -4,6 +4,7 @@ import {
   useQuery,
   QueryClientProvider,
   QueryClient,
+  UseMutationResult,
 } from '@tanstack/react-query';
 import Review from '@/data/Review';
 import { useError } from '@/context/ErrorContext';
@@ -14,17 +15,25 @@ interface IReviewContext {
   isLoading: boolean;
   isError: boolean;
   isFetching: boolean;
-  submitReview: (newReview: Review) => void;
+  refetch: () => void;
+  submitReview: UseMutationResult<any, Error, Review, any>;
 }
 
 const ReviewContext = createContext<IReviewContext | null>(null);
 
 const PAGE_SIZE = 10;
 
-const fetchReviews = async (page: number): Promise<Review[]> => {
-  const response = await fetch(
-    `/api/reviews?page=${page}&pageSize=${PAGE_SIZE}`,
-  );
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+    },
+  },
+});
+
+const fetchReviews = async (): Promise<Review[]> => {
+  const response = await fetch('/api/reviews');
   if (!response.ok) {
     throw new Error('Failed to fetch reviews.');
   }
@@ -39,9 +48,10 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     isError,
     isFetching,
+    refetch,
   } = useQuery<Review[], Error>({
     queryKey: ['reviews'],
-    queryFn: () => fetchReviews(1),
+    queryFn: fetchReviews,
     staleTime: 1000 * 60 * 5,
     retry: 2,
     placeholderData: prevData => prevData ?? [],
@@ -77,14 +87,10 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       await queryClient.cancelQueries({ queryKey: ['reviews'] });
 
       const previousReviews = queryClient.getQueryData<Review[]>(['reviews']);
-      queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
-        { ...newReview, id: Date.now() },
-        ...old,
-      ]);
 
       queryClient.setQueryData(['reviews'], (old: Review[] = []) => [
-        ...old,
         { ...newReview, id: Date.now() },
+        ...old,
       ]);
 
       return { previousReviews };
@@ -95,13 +101,13 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
         queryClient.setQueryData(['reviews'], context.previousReviews);
       }
     },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
+      queryClient.refetchQueries({ queryKey: ['reviews'] });
     },
   });
 
   const hasMoreReviews = reviews.length === PAGE_SIZE;
-
   const value = useMemo(
     () => ({
       reviews,
@@ -109,14 +115,29 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isLoading,
       isError,
       isFetching,
-      submitReview: submitReview.mutate,
+      submitReview,
+      refetch,
     }),
-    [reviews, hasMoreReviews, isLoading, isError, isFetching, submitReview],
+    [
+      reviews,
+      hasMoreReviews,
+      isLoading,
+      isError,
+      isFetching,
+      submitReview,
+      refetch,
+    ],
   );
 
   return (
+    <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
+  );
+};
+
+export const ReviewQueryProvider = ({ children }: { children: ReactNode }) => {
+  return (
     <QueryClientProvider client={queryClient}>
-      <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
+      <ReviewProvider>{children}</ReviewProvider>
     </QueryClientProvider>
   );
 };

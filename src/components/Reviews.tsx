@@ -8,7 +8,6 @@ import clsx from 'clsx';
 
 const Reviews = () => {
   const { reviews, isError, hasMoreReviews, isFetching } = useReviews();
-
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);

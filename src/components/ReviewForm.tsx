@@ -15,7 +15,7 @@ type TReviewFormData = {
 interface IReviewForm {}
 
 export const ReviewForm: React.FC<IReviewForm> = () => {
-  const { submitReview } = useReviews();
+  const { submitReview, refetch } = useReviews();
   const {
     handleSubmit,
     register,
@@ -34,12 +34,13 @@ export const ReviewForm: React.FC<IReviewForm> = () => {
       return;
     }
     try {
-      await submitReview({
+      await submitReview.mutateAsync({
         rating: data.rating,
         review: data.review ?? '',
         author: data.author,
         id: Date.now(),
       });
+      await refetch();
       toast.success('Review submitted successfully!');
       reset();
     } catch (error) {
