@@ -3,11 +3,25 @@ import pool from '@/utils/db';
 import { withCors } from '@/lib/middleware/cors';
 import { withRateLimit } from '@/lib/middleware/rateLimit';
 import { sanitizeInput } from '@/utils/sanitize';
+import helmet from 'helmet';
 
 const DEFAULT_PAGE_NUMBER = 1;
 const DEFAULT_PAGE_SIZE = 10;
 
+// Apply security headers
+const applySecurityHeaders = (req: NextApiRequest, res: NextApiResponse) => {
+  helmet({
+    contentSecurityPolicy: false, // Handled in `next.config.mjs`
+    frameguard: { action: 'sameorigin' },
+    xssFilter: true,
+    noSniff: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  })(req as any, res as any, () => {});
+};
+
 async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
+  applySecurityHeaders(req, res); // Apply security headers
+
   if (req.method === 'GET') {
     try {
       const page = parseInt(req.query.page as string) || DEFAULT_PAGE_NUMBER;
@@ -24,6 +38,13 @@ async function reviewsHandler(req: NextApiRequest, res: NextApiResponse) {
       console.error(
         `[DB_ERROR]: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
+      if (res.statusCode === 405) {
+        return res.status(405).json({
+          error: 'Internal Server Error',
+          message: 'Method Not Allowed.',
+        });
+      }
+
       return res.status(500).json({
         error: 'Internal Server Error',
         message: 'Something went wrong while retrieving reviews.',
