@@ -7,7 +7,8 @@ import { ReviewForm } from './ReviewForm';
 import clsx from 'clsx';
 
 const Reviews = () => {
-  const { reviews, isError, hasMoreReviews, isFetching } = useReviews();
+  const { reviews, isError, hasMoreReviews, isFetching, prevPage, nextPage } =
+    useReviews();
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);
@@ -100,16 +101,16 @@ const Reviews = () => {
       {/* Pagination Controls */}
       <div className="flex justify-center mt-6 space-x-4">
         {
-          <button className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all">
+          <button
+            className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
+            onClick={prevPage}
+          >
             Previous
           </button>
         }
         {hasMoreReviews && (
           <button
-            onClick={e => {
-              e.preventDefault();
-              handleNextPage();
-            }}
+            onClick={nextPage}
             className="px-8 py-3 border rounded-lg bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold hover:bg-primary-700 transition-all"
           >
             Next

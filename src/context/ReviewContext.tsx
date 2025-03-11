@@ -1,4 +1,11 @@
-import { createContext, useContext, ReactNode, useMemo } from 'react';
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useState,
+  useCallback,
+} from 'react';
 import {
   useMutation,
   useQuery,
@@ -15,6 +22,10 @@ interface IReviewContext {
   isLoading: boolean;
   isError: boolean;
   isFetching: boolean;
+  page: number;
+  setPage: (page: number) => void;
+  nextPage: () => void;
+  prevPage: () => void;
   refetch: () => void;
   submitReview: UseMutationResult<any, Error, Review, any>;
 }
@@ -32,8 +43,10 @@ const queryClient = new QueryClient({
   },
 });
 
-const fetchReviews = async (): Promise<Review[]> => {
-  const response = await fetch('/api/reviews');
+const fetchReviews = async (page: number): Promise<Review[]> => {
+  const response = await fetch(
+    `/api/reviews?page=${page}&pageSize=${PAGE_SIZE}`,
+  );
   if (!response.ok) {
     throw new Error('Failed to fetch reviews.');
   }
@@ -42,6 +55,7 @@ const fetchReviews = async (): Promise<Review[]> => {
 export const ReviewProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
   const { setError } = useError();
+  const [page, setPage] = useState<number>(1);
 
   const {
     data: reviews = [],
@@ -50,12 +64,24 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
     isFetching,
     refetch,
   } = useQuery<Review[], Error>({
-    queryKey: ['reviews'],
-    queryFn: fetchReviews,
+    queryKey: ['reviews', page],
+    queryFn: () => fetchReviews(page),
     staleTime: 1000 * 60 * 5,
     retry: 2,
     placeholderData: prevData => prevData ?? [],
   });
+  //pagination
+  const nextPage = useCallback(() => {
+    if (reviews.length === PAGE_SIZE) {
+      setPage(prev => prev + 1);
+    }
+  }, [reviews.length]);
+
+  const prevPage = useCallback(() => {
+    if (page > 1) {
+      setPage(prev => prev - 1);
+    }
+  }, [page]);
 
   const submitReview = useMutation({
     mutationFn: async (newReview: Review) => {
@@ -102,8 +128,10 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reviews'] });
-      queryClient.refetchQueries({ queryKey: ['reviews'] });
+      queryClient.invalidateQueries({ queryKey: ['reviews', page] });
+      queryClient.refetchQueries({ queryKey: ['reviews', page] });
+      // Reset to page 1 after submitting a review
+      setPage(1);
     },
   });
 
@@ -117,6 +145,10 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isFetching,
       submitReview,
       refetch,
+      page,
+      setPage,
+      nextPage,
+      prevPage,
     }),
     [
       reviews,
@@ -126,6 +158,9 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
       isFetching,
       submitReview,
       refetch,
+      page,
+      nextPage,
+      prevPage,
     ],
   );
 
