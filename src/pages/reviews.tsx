@@ -1,5 +1,5 @@
 import StarRating from '@/components/StarRating';
-import { useReviews } from '../../hooks/useReviews';
+import { useReviews } from '@/context/ReviewContext';
 import toast from 'react-hot-toast';
 import { useEffect, useRef, type RefObject } from 'react';
 
@@ -10,24 +10,12 @@ import { SkeletonLoader } from '@/components/SkeletonLoader';
 import Reviews from '@/components/Reviews';
 
 const CustomerReviews = () => {
-  const {
-    reviews,
-    isError,
-    page,
-    setPage,
-    hasMoreReviews,
-    refetch,
-    isFetching,
-  } = useReviews();
+  const { isError, hasMoreReviews, isFetching } = useReviews();
 
-  const onPageOne = page > 1; // TODO: (ET) handle this better
   const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
-  const reviewCommentSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);
 
   const handleNextPage = () => {
-    setPage(prev => prev + 1);
-
     setTimeout(() => {
       reviewSectionRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -38,22 +26,18 @@ const CustomerReviews = () => {
   useEffect(() => {
     if (!hasMoreReviews) return;
 
-    if (onPageOne && reviewSectionRef.current) {
-      reviewSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
     if (isError) {
       toast.error('Failed to load reviews. Please try again later.');
     }
 
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
-        setPage(prev => prev + 1);
       }
     });
 
     if (lastReviewRef.current) observer.observe(lastReviewRef.current);
     return () => observer.disconnect();
-  }, [hasMoreReviews, isError, onPageOne, setPage]);
+  }, [hasMoreReviews, isError]);
 
   // TODO: (ET) Smoothen out the transition when user clicks next
   if (isFetching) {
