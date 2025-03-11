@@ -17,6 +17,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "scripts/seed.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "scripts/seed.js",
+    "cypress/support/e2e.js"
+  ],
   "exclude": ["node_modules"]
 }
