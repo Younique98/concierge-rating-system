@@ -44,14 +44,25 @@ const queryClient = new QueryClient({
 });
 
 const fetchReviews = async (page: number): Promise<Review[]> => {
-  const response = await fetch(
-    `/api/reviews?page=${page}&pageSize=${PAGE_SIZE}`,
-  );
-  if (!response.ok) {
-    throw new Error('Failed to fetch reviews.');
+  try {
+    const response = await fetch(
+      `/api/reviews?page=${page}&pageSize=${PAGE_SIZE}`,
+    );
+    if (!response.ok) {
+      throw new Error('Failed to fetch reviews, using local fallback data.');
+    }
+    return response.json();
+  } catch (error) {
+    // Fetch local JSON file as a fallback
+    const fallbackResponse = await fetch('/reviews.json');
+    if (!fallbackResponse.ok) {
+      throw new Error('Failed to load fallback data.');
+    }
+
+    return await fallbackResponse.json();
   }
-  return response.json();
 };
+
 export const ReviewProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
   const { setError } = useError();

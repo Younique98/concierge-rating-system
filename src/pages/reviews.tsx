@@ -1,27 +1,16 @@
-import StarRating from '@/components/StarRating';
 import { useReviews } from '@/context/ReviewContext';
 import toast from 'react-hot-toast';
 import { useEffect, useRef, type RefObject } from 'react';
 
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Quotes } from '../../public/quote';
-import { ReviewForm } from '@/components/ReviewForm';
 import { SkeletonLoader } from '@/components/SkeletonLoader';
 import Reviews from '@/components/Reviews';
 
 const CustomerReviews = () => {
   const { isError, hasMoreReviews, isFetching } = useReviews();
 
-  const reviewSectionRef: RefObject<HTMLHeadingElement> = useRef(null);
   const lastReviewRef = useRef(null);
-
-  const handleNextPage = () => {
-    setTimeout(() => {
-      reviewSectionRef.current?.scrollIntoView({
-        behavior: 'smooth',
-      });
-    }, 100);
-  };
 
   useEffect(() => {
     if (!hasMoreReviews) return;
