@@ -58,10 +58,47 @@ src/
    ```
 3. Start the development server:
    ```sh
+   npm run build
    npm run dev
    ```
 4. Open [http://localhost:3000](http://localhost:3000) to view it in the
    browser.
+
+5. Database Setup Instructions
+
+- If PostgreSQL is not installed:
+
+* Mac(Homebrew) `brew install postgresql` `brew services start postgresql`
+* (Ubuntu/Debian) `sudo apt update && sudo apt install postgresql`
+  `postgresql-contrib` `sudo systemctl start postgresql`
+* (Windows) [Download](https://www.postgresql.org/download/)
+
+\*\* If the database doesn't already exist, create it manually
+
+```sh
+psql -U postgres
+CREATE DATABASE pointme_reviews;
+\c pointme_reviews
+```
+
+or `psql -U postgres -d pointme_reviews`
+
+## **Seed Script**
+
+(Option 1) Run it with:
+
+```sh
+psql -U postgres -d pointme_reviews -f seed.sql
+
+```
+
+(Option 2)
+
+```sh
+curl -X POST http://localhost:3000/api/reviews \
+     -H "Content-Type: application/json" \
+     -d '{"rating": 5, "review": "Amazing service!", "author": "John Doe"}'
+```
 
 ## **Features & Implementation**
 
