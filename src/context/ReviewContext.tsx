@@ -54,7 +54,6 @@ const fetchReviews = async (page: number): Promise<Review[]> => {
     return response.json();
   } catch (error) {
     // Fetch local JSON file as a fallback
-    console.log('Error fetching reviews:', error);
     const fallbackResponse = await fetch('/reviews.json');
     if (!fallbackResponse.ok) {
       throw new Error('Failed to load fallback data.');
